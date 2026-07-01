@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Surprise</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pink:#ff4da6;
+      --soft:#ffe6f2;
+      --btn:#ff80bf;
+      --accent:#ffb3d9;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Poppins",sans-serif;
+      background: linear-gradient(180deg,#fff0f5 0%, #fff6fb 100%);
+      color:#333;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-y:auto;
+      min-height:100vh;
+    }
+
+    /* Page layout */
+    .page{
+      display:none;
+      min-height:100vh;
+      padding:36px 20px;
+      position:relative;
+    }
+    .active{display:block; animation:fadeIn .9s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+
+    /* Header popup */
+    .popup{
+      font-family:'Pacifico',cursive;
+      font-size:48px;
+      color:var(--pink);
+      margin:60px auto 30px;
+      max-width:900px;
+      line-height:1.05;
+      animation:pop 2s ease-in-out infinite alternate;
+      text-shadow:0 2px 0 rgba(255,255,255,.6);
+    }
+    @keyframes pop{from{transform:scale(.96)}to{transform:scale(1.06)}}
+
+    /* Boxes and buttons */
+    .box{
+      margin:18px auto;
+      width:clamp(260px,70%,900px);
+      padding:18px 20px;
+      background:var(--soft);
+      border-radius:14px;
+      font-size:18px;
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
+      transition:transform .35s ease, background .35s ease, box-shadow .35s ease;
+      cursor:pointer;
+      user-select:none;
+    }
+    .box:active{transform:translateY(2px)}
+    .btn{
+      display:inline-block;
+      margin:28px 8px 8px;
+      padding:12px 26px;
+      border-radius:12px;
+      background:var(--btn);
+      color:#fff;
+      border:none;
+      font-size:16px;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(255,77,166,.12);
+      transition:transform .18s ease, background .18s ease;
+    }
+    .btn:hover{transform:translateY(-3px); background:var(--pink)}
+    .center{display:flex;justify-content:center;align-items:center;flex-direction:column}
+
+    /* correct / wrong */
+    .correct{background:#bfffdc !important; transform:scale(1.06) !important; box-shadow:0 12px 30px rgba(0,0,0,.08) !important}
+    .wrong{background:#ffb3b3 !important; animation:shake .5s}
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      50%{transform:translateX(6px)}
+      75%{transform:translateX(-6px)}
+      100%{transform:translateX(0)}
+    }
+
+    /* Balloons (visual + string) */
+    .balloon{
+      position:absolute;
+      bottom:-180px;
+      width:56px;
+      height:72px;
+      border-radius:50%;
+      filter:drop-shadow(0 8px 18px rgba(0,0,0,.08));
+      display:block;
+      transform-origin:center;
+      z-index:6;
+      animation-timing-function:linear;
+    }
+    .balloon::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:-40px;
+      width:2px;
+      height:40px;
+      background:rgba(0,0,0,.08);
+      border-radius:2px;
+    }
+
+    /* balloon sway + float */
+    @keyframes floatUp{
+      0%{bottom:-180px; transform:translateX(0) rotate(-6deg)}
+      25%{transform:translateX(10px) rotate(6deg)}
+      50%{transform:translateX(-10px) rotate(-6deg)}
+      75%{transform:translateX(8px) rotate(6deg)}
+      100%{bottom:110%; transform:translateX(0) rotate(-6deg)}
+    }
+
+    /* confetti pieces */
+    .confetti{
+      position:fixed;
+      width:10px;
+      height:14px;
+      z-index:9999;
+      opacity:1;
+      transform-origin:center;
+      border-radius:2px;
+      animation:confettiFall 1400ms linear forwards;
+    }
+    @keyframes confettiFall{
+      0%{transform:translateY(-10vh) rotate(0) scale(1); opacity:1}
+      100%{transform:translateY(110vh) rotate(720deg) scale(.9); opacity:0}
+    }
+
+    /* sparkles */
+    .sparkle{
+      position:absolute;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      z-index:7;
+      opacity:0;
+      box-shadow:0 0 8px rgba(255,230,120,.9);
+      animation:twinkle 1.8s infinite ease-in-out;
+    }
+    @keyframes twinkle{
+      0%{opacity:0; transform:scale(.6)}
+      40%{opacity:1; transform:scale(1.2)}
+      100%{opacity:0; transform:scale(.6)}
+    }
+
+    /* small responsive tweaks */
+    @media (max-width:520px){
+      .popup{font-size:34px;margin-top:36px}
+      .box{width:92%}
+      .btn{padding:10px 18px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1 -->
+  <div class="page active" id="page1">
+    <div class="center">
+      <div class="popup">🎀 Happy Birthday to My Everything 🎀</div>
+      <button class="btn" onclick="showPage(2)">Next ➡️</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="page2">
+    <h2 style="color:var(--pink); margin:6px 0 12px">Little Sweet Messages 💕</h2>
+    <div class="box">Already the sweetest at sweet sixteen 💖</div>
+    <div class="box">You’re sweeter than cake 🍰</div>
+    <div class="box">Forever my cutuu Rabriii ✨</div>
+    <div class="center"><button class="btn" onclick="showPage(3)">Next ➡️</button></div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="page3">
+    <h2 style="color:var(--pink); margin:6px 0 12px">Cute Questions for You 💌</h2>
+
+    <p style="font-size:16px; margin:10px 0 6px">Q1: Who is the most beautiful person in the world? 💕</p>
+    <div class="box answer" data-correct="true">Gauressha (Myy Rabrii)✨</div>
+    <div class="box answer" data-correct="false">Someone else ❌</div>
+
+    <p style="font-size:16px; margin:10px 0 6px">Q2: Who is the hottest person in the universe? 😘</p>
+    <div class="box answer" data-correct="true">Gauressha(My cutuu)💕</div>
+    <div class="box answer" data-correct="false">Someone else ❌</div>
+
+    <p style="font-size:16px; margin:10px 0 6px">Q3: Who is the most loving,sweetest and caring person? ✨</p>
+    <div class="box answer" data-correct="true">Gauressha(My everything)🌸</div>
+    <div class="box answer" data-correct="false">Can’t remember ❌</div>
+
+    <div class="center"><button class="btn" onclick="showPage(4)">Next ➡️</button></div>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page" id="page4">
+    <h2 style="color:var(--pink); margin:6px 0 12px">My Heartfelt Note 💖</h2>
+    <p style="margin:20px auto; width:clamp(260px,70%,900px); font-size:18px; line-height:1.6;">
+      <!-- Replace this with your message -->
+      [Omgg aap 16 years ke ho gayee,sweet sixteen!!,bahut enjoy krna cutuu,pure din maze krnaa and i hope aap sab kuch achieve kroo apni life mai and may you be very very succesful and always be happy ,i love youu bahut bahutt saaraaa.Aaap bahut achee hoo,everything with you has been very very speciall,aapki har baat itni pyaari sii hoti haii and aapke baarein mai har chij bahut cutee hoti haii and aap toh ho hi pure cutuu,mere cutuu!!,and haan pehli baar aapka birthday mai bhi celebrate krra hu aapka birthday ,soo yayayayayayayya,i hope aapko mere gifts ache lagee ,ik utne ache nai hai,but abhi toh mai itna hi bnaa skaa,but aage aage agar aap mere rahogee toh pakka aur bhi zyada achee gifts dungaa!!,for sure!!,and haan you make every ordinary and boring day very beautiful by just being in it and i love love talking to you even if i dont have anything to say,aap bahut mehnat krte hoo,toh aaj lite lelo aur apna birthday enjoy krnaaa ache see and kisi bhi chij ke baarein mai worry krne ki zarurat naii,i hope aapke saath sab acha acha hoo and may your day be as sweet as you ,love youuu😘.]
+    </p>
+
+    <h3 style="color:var(--pink); margin-top:30px">From Sweet Sixteen ➡️ To Sweetest Forever 🌸✨</h3>
+
+    <!-- Single Alsoo box -->
+    <div class="box" id="alsooBox">Alsoo..Idhaar aao,Mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah mwah.Anddd ek tight hugg!!💖</div>
+
+    <p style="margin-top:26px; font-size:18px;">Forever yours, Tejasvi 💕</p>
+  </div>
+
+  <script>
+    /* Utility: remove children by selector */
+    function removeChildren(parent, selector){
+      const nodes = parent.querySelectorAll(selector);
+      nodes.forEach(n => n.remove());
+    }
+
+    /* Show page and trigger final animations */
+    function showPage(n){
+      // hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const page = document.getElementById('page' + n);
+      if(!page) return;
+      page.classList.add('active');
+
+      // If final page, clear old decorations then add new ones
+      if(n === 4){
+        // remove previous balloons/sparkles if any
+        removeChildren(page, '.balloon');
+        removeChildren(page, '.sparkle');
+
+        // create many balloons with varied durations and left positions
+        const colors = ['#ff4da6','#ff80bf','#ffb3d9','#ff99cc','#ffd966','#9fe6ff'];
+        for(let i=0;i<40;i++){
+          const b = document.createElement('div');
+          b.className = 'balloon';
+          b.style.left = (Math.random()*95) + '%';
+          b.style.background = colors[Math.floor(Math.random()*colors.length)];
+          // randomize size slightly
+          const scale = 0.8 + Math.random()*0.6;
+          b.style.width = Math.round(56*scale) + 'px';
+          b.style.height = Math.round(72*scale) + 'px';
+          // random animation duration and delay
+          const dur = 7 + Math.random()*6; // 7s - 13s
+          const delay = Math.random()*1.5;
+          b.style.animation = `floatUp ${dur}s linear ${delay}s forwards`;
+          // slight horizontal offset using transform translateX
+          b.style.transform = `translateX(${(Math.random()*40-20).toFixed(1)}px)`;
+          page.appendChild(b);
+        }
+
+        // sparkles
+        for(let i=0;i<28;i++){
+          const s = document.createElement('div');
+          s.className = 'sparkle';
+          s.style.left = (Math.random()*92) + '%';
+          s.style.top = (10 + Math.random()*70) + '%';
+          s.style.background = (Math.random()>.5) ? 'rgba(255,230,120,.95)' : 'rgba(255,255,255,.95)';
+          s.style.animationDelay = (Math.random()*1.2) + 's';
+          s.style.animationDuration = (1.2 + Math.random()*1.6) + 's';
+          page.appendChild(s);
+        }
+      } else {
+        // if leaving final page, remove decorations to keep DOM clean
+        const final = document.getElementById('page4');
+        if(final){
+          removeChildren(final, '.balloon');
+          removeChildren(final, '.sparkle');
+        }
+      }
+    }
+
+    /* Answer click handling: correct -> confetti + green; wrong -> shake + red */
+    function checkAnswerElement(el){
+      const correct = el.getAttribute('data-correct') === 'true';
+      if(correct){
+        el.classList.add('correct');
+        spawnConfetti(28);
+      } else {
+        el.classList.add('wrong');
+      }
+      setTimeout(()=> el.classList.remove('correct','wrong'), 900);
+    }
+
+    /* Attach click listeners to answer boxes */
+    document.querySelectorAll('.answer').forEach(a=>{
+      a.addEventListener('click', function(){ checkAnswerElement(this) });
+    });
+
+    /* Confetti generator */
+    function spawnConfetti(count){
+      const colors = ['#ff4da6','#ff80bf','#ffb3d9','#ff99cc','#ffd966','#9fe6ff','#b3ffcc'];
+      for(let i=0;i<count;i++){
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = (10 + Math.random()*80) + '%';
+        c.style.top = (-5 - Math.random()*10) + 'vh';
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.transform = `rotate(${Math.random()*360}deg)`;
+        // random size
+        const w = 6 + Math.random()*12;
+        c.style.width = w + 'px';
+        c.style.height = (w + Math.random()*6) + 'px';
+        // slight horizontal drift via animation delay and CSS transform
+        c.style.animationDelay = (Math.random()*120) + 'ms';
+        document.body.appendChild(c);
+        // remove after animation
+        setTimeout(()=>{ c.remove(); }, 1800 + Math.random()*800);
+      }
+    }
+
+    /* Expose checkAnswer for inline onclick compatibility (older code paths) */
+    function checkAnswer(el, correct){
+      // If called with parameters (legacy), find element or use passed el
+      if(typeof el === 'string' || el === null) return;
+      // If second param provided, simulate correct/incorrect
+      if(typeof correct === 'boolean'){
+        if(correct) { el.classList.add('correct'); spawnConfetti(20); }
+        else { el.classList.add('wrong'); }
+        setTimeout(()=> el.classList.remove('correct','wrong'),900);
+        return;
+      }
+      // otherwise use data attribute
+      checkAnswerElement(el);
+    }
+
+    /* Ensure initial page is visible */
+    document.addEventListener('DOMContentLoaded', ()=> {
+      showPage(1);
+    });
+
+    /* Optional: keyboard navigation (left/right) */
+    document.addEventListener('keydown', (e)=>{
+      const pages = ['page1','page2','page3','page4'];
+      const activeIndex = pages.findIndex(id => document.getElementById(id).classList.contains('active'));
+      if(e.key === 'ArrowRight'){
+        const next = Math.min(activeIndex+1, pages.length-1);
+        showPage(next+1);
+      } else if(e.key === 'ArrowLeft'){
+        const prev = Math.max(activeIndex-1, 0);
+        showPage(prev+1);
+      }
+    });
+  </script>
+</body>
+</html>
